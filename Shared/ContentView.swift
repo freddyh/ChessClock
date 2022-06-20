@@ -180,7 +180,14 @@ struct PlayerButton: View {
         Button(action: action, label: {
             Rectangle().fill(enabled ? .green : .gray)
                 .overlay(
-                    Text(timeRemaining.formatted())
+                    Text(
+                        DateComponentsFormatter
+                            .remainingTimeFormatter
+                            .string(
+                                for: DateComponents(
+                                    second: Int(timeRemaining)
+                                )
+                            ) ?? "\(timeRemaining)")
                         .font(.system(size: 40))
                         .fontWeight(.semibold)
                     #if RELEASE
@@ -226,7 +233,7 @@ extension View {
 extension DateComponentsFormatter {
     static var remainingTimeFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
+        formatter.unitsStyle = .positional
         formatter.allowedUnits = [.minute, .second]
         return formatter
     }()
