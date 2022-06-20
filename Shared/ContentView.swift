@@ -3,22 +3,23 @@ import SwiftUI
 struct ContentView: View {
     @State var activePlayer: Int = 1
     @State var players: [Player]
-    @State var gameState: Int = 0
-    @State var playerOneEndDate: Date?
-    @State var playerTwoEndDate: Date?
-    let playerOneClockInitial: TimeInterval = 60 * 10
-    let playerTwoClockInitial: TimeInterval = 60 * 10
-    @State var playerOneTimeRemaining: TimeInterval = 60 * 10
-    @State var playerTwoTimeRemaining: TimeInterval = 60 * 10
+    @State var gameState: GameState = .ready
     @State var lastClockStart: Date? = nil
     @State var secondsElapsed: TimeInterval = 0
     @State var rotation: Angle = .degrees(90)
 
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
+    func buttonFillColor(player: Int, gameState: GameState) -> Color {
+        guard gameState != .outOfTime else { return .red }
+        guard player == activePlayer else { return .gray }
+        return .green
+    }
+
     var body: some View {
         VStack {
-            PlayerButton(
+            PlayerButtonView(
+                fill: buttonFillColor(player: 1, gameState: gameState),
                 enabled: isPlayerEnabled(player: 1),
                 timeRemaining: players[0].timeRemaining
             ) {
@@ -27,7 +28,8 @@ struct ContentView: View {
 
             pauseAndSettingsView
 
-            PlayerButton(
+            PlayerButtonView(
+                fill: buttonFillColor(player: 2, gameState: gameState),
                 enabled: isPlayerEnabled(player: 2),
                 timeRemaining: players[1].timeRemaining
             ) {
@@ -36,7 +38,7 @@ struct ContentView: View {
 
         }
         .onReceive(timer) { input in
-            guard gameState == 1 else {
+            guard gameState == .active else {
                 return
             }
 
@@ -65,7 +67,7 @@ struct ContentView: View {
             Spacer()
 
             Button(action: { playOrPause(gameState: gameState) }) {
-                Image(systemName: gameState == 1 ? "pause" : "play.fill")
+                Image(systemName: gameState == .active ? "pause" : "play.fill")
             }
 
             Spacer()
@@ -79,7 +81,7 @@ struct ContentView: View {
     }
 
     func isPlayerEnabled(player: Int) -> Bool {
-        return activePlayer == player && gameState != 0
+        return activePlayer == player && gameState != .outOfTime
     }
 
     func updateTimeRemaining(for player: Int) {
@@ -89,12 +91,15 @@ struct ContentView: View {
         }
         p.timeRemaining = p.clockEnd!.timeIntervalSince1970 - Date().timeIntervalSince1970
         updatePlayer(number: player, player: p)
+        if p.timeRemaining < 0 {
+            gameState = .outOfTime
+        }
     }
 
     func giveControlTo(player: Int, date: Date) {
         guard activePlayer != player else { return }
 
-        if gameState == 0 { gameState = 1 }
+        if gameState == .paused { gameState = .active }
 
         var p = currentPlayer(number: player)
         p.updateClockEndFrom(now: date)
@@ -104,13 +109,21 @@ struct ContentView: View {
     }
 
     func resetGame() {
-        gameState = 0
+        var p1 = currentPlayer(number: 1)
+        var p2 = currentPlayer(number: 2)
+        p1.resetTimeRemaining()
+        p2.resetTimeRemaining()
+        updatePlayer(number: 1, player: p1)
+        updatePlayer(number: 2, player: p2)
+        gameState = .ready
         lastClockStart = nil
     }
 
-    func playOrPause(gameState: Int) {
+    func playOrPause(gameState: GameState) {
         switch gameState {
-        case 0:
+        case .active:
+            pauseGame()
+        case .ready, .paused:
             // Game Initilizer
             if lastClockStart == nil {
                 lastClockStart = Date()
@@ -123,11 +136,9 @@ struct ContentView: View {
                 unPausePlayer(activePlayer)
             }
 
-            self.gameState = 1
-        case 1:
-            pauseGame()
-        default:
-            fatalError()
+            self.gameState = .active
+        case .outOfTime:
+            break
         }
     }
 
@@ -150,8 +161,15 @@ struct ContentView: View {
     }
 
     func pauseGame() {
-        gameState = 0
+        gameState = .paused
     }
+}
+
+enum GameState {
+    case ready
+    case active
+    case paused
+    case outOfTime
 }
 
 struct Player {
@@ -170,16 +188,21 @@ struct Player {
     mutating func updateClockEndFrom(now: Date) {
         clockEnd = now.addingTimeInterval(timeRemaining)
     }
+
+    mutating func resetTimeRemaining() {
+        timeRemaining = initialTime
+    }
 }
 
-struct PlayerButton: View {
+struct PlayerButtonView: View {
+    var fill: Color
     var enabled: Bool
     var timeRemaining: Double
     var action: () -> Void
 
     var body: some View {
         Button(action: action, label: {
-            Rectangle().fill(enabled ? .green : .gray)
+            Rectangle().fill(fill)
                 .overlay(
                     Text(
                         DateComponentsFormatter
@@ -232,8 +255,8 @@ extension DateComponentsFormatter {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(players: [
-            .init(id: 1, initialTime: 60),
-            .init(id: 2, initialTime: 120),
+            .init(id: 1, initialTime: 5),
+            .init(id: 2, initialTime: 20),
         ])
     }
 }
