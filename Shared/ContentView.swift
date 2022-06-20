@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var activePlayer: Int = 1
+    @State var activePlayer: Int?
     @State var players: [Player]
     @State var gameState: GameState = .ready
     @State var lastClockStart: Date? = nil
@@ -38,7 +38,7 @@ struct ContentView: View {
 
         }
         .onReceive(timer) { input in
-            guard gameState == .active else {
+            guard gameState == .active, let activePlayer else {
                 return
             }
 
@@ -60,17 +60,18 @@ struct ContentView: View {
         HStack {
             Spacer()
 
-            Button(action: { resetGame() }) {
-                Image(systemName: "gobackward")
+            if gameState != .ready {
+                Button(action: { resetGame() }) {
+                    Image(systemName: "gobackward")
+                }
+                Spacer()
             }
 
-            Spacer()
-
-            Button(action: { playOrPause(gameState: gameState) }) {
-                Image(systemName: gameState == .active ? "pause" : "play.fill")
-            }
-
-            Spacer()
+//            Button(action: { playOrPause(gameState: gameState) }) {
+//                Image(systemName: gameState == .active ? "pause" : "play.fill")
+//            }
+//
+//            Spacer()
 
             Button(action: { openSettings() }) {
                 Image(systemName: "gear")
@@ -81,7 +82,16 @@ struct ContentView: View {
     }
 
     func isPlayerEnabled(player: Int) -> Bool {
-        return activePlayer == player && gameState != .outOfTime
+        switch gameState {
+        case .ready:
+            return true
+        case .active:
+            return activePlayer == player
+        case .paused:
+            return true
+        case .outOfTime:
+            return false
+        }
     }
 
     func updateTimeRemaining(for player: Int) {
@@ -97,18 +107,45 @@ struct ContentView: View {
     }
 
     func giveControlTo(player: Int, date: Date) {
-        guard activePlayer != player else { return }
+        switch gameState {
+        case .ready:
+            // give control to other player
+            gameState = .active
+            var p = currentPlayer(number: player)
+            p.updateClockEndFrom(now: date)
+            updatePlayer(number: player, player: p)
 
-        if gameState == .paused { gameState = .active }
+            activePlayer = player
 
-        var p = currentPlayer(number: player)
-        p.updateClockEndFrom(now: date)
-        updatePlayer(number: player, player: p)
+        case .active:
+            // must be the active player to give control to other player
 
-        activePlayer = player
+            guard activePlayer != player else { return }
+
+            if gameState == .paused { gameState = .active }
+
+            var p = currentPlayer(number: player)
+            p.updateClockEndFrom(now: date)
+            updatePlayer(number: player, player: p)
+
+            activePlayer = player
+
+        case .paused:
+            // give control to other player
+            gameState = .active
+            var p = currentPlayer(number: player)
+            p.updateClockEndFrom(now: date)
+            updatePlayer(number: player, player: p)
+
+            activePlayer = player
+
+        case .outOfTime:
+            break
+        }
     }
 
     func resetGame() {
+        activePlayer = nil
         var p1 = currentPlayer(number: 1)
         var p2 = currentPlayer(number: 2)
         p1.resetTimeRemaining()
@@ -124,19 +161,21 @@ struct ContentView: View {
         case .active:
             pauseGame()
         case .ready, .paused:
-            // Game Initilizer
-            if lastClockStart == nil {
-                lastClockStart = Date()
+            if let activePlayer {
+                // Game Initilizer
+                if lastClockStart == nil {
+                    lastClockStart = Date()
 
-                var p = currentPlayer(number: activePlayer)
-                p.updateClockEndFrom(now: Date())
-                updatePlayer(number: activePlayer, player: p)
-            }
-            else {
-                unPausePlayer(activePlayer)
-            }
+                    var p = currentPlayer(number: activePlayer)
+                    p.updateClockEndFrom(now: Date())
+                    updatePlayer(number: activePlayer, player: p)
+                }
+                else {
+                    unPausePlayer(activePlayer)
+                }
 
-            self.gameState = .active
+                self.gameState = .active
+            }
         case .outOfTime:
             break
         }
