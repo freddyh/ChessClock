@@ -125,7 +125,7 @@ struct ContentView: View {
 
             self.gameState = 1
         case 1:
-            self.gameState = 0
+            pauseGame()
         default:
             fatalError()
         }
@@ -146,7 +146,11 @@ struct ContentView: View {
     }
 
     func openSettings() {
+        pauseGame()
+    }
 
+    func pauseGame() {
+        gameState = 0
     }
 }
 
