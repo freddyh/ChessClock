@@ -21,7 +21,8 @@ struct ContentView: View {
             PlayerButtonView(
                 fill: buttonFillColor(player: 1, gameState: gameState),
                 enabled: isPlayerEnabled(player: 1),
-                timeRemaining: playerOne.timeRemaining
+                timeRemaining: playerOne.timeRemaining,
+                rotation: .degrees(180)
             ) {
                 giveControlTo(player: 2, date: Date())
             }
@@ -31,7 +32,8 @@ struct ContentView: View {
             PlayerButtonView(
                 fill: buttonFillColor(player: 2, gameState: gameState),
                 enabled: isPlayerEnabled(player: 2),
-                timeRemaining: playerTwo.timeRemaining
+                timeRemaining: playerTwo.timeRemaining,
+                rotation: .degrees(0)
             ) {
                 giveControlTo(player: 1, date: Date())
             }
@@ -251,6 +253,7 @@ struct PlayerButtonView: View {
     var fill: Color
     var enabled: Bool
     var timeRemaining: Double
+    var rotation: Angle
     var action: () -> Void
 
     var body: some View {
@@ -267,9 +270,7 @@ struct PlayerButtonView: View {
                             ) ?? "\(timeRemaining)")
                     .font(.system(size: 40))
                     .fontWeight(.semibold)
-                    #if RELEASE
-                        .rotationEffect(.degrees(90))
-                    #endif
+                    .rotationEffect(rotation)
 
                 )
         })
