@@ -201,23 +201,12 @@ struct PlayerButton: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView(players: [
-            .init(id: 1, initialTime: 60),
-            .init(id: 2, initialTime: 120),
-        ])
-    }
-}
-
 // Device Orientation Subscriber
-
 struct DeviceRotationViewModifier: ViewModifier {
     let action: (UIDeviceOrientation) -> Void
 
     func body(content: Content) -> some View {
         content
-//            .onAppear()
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
                 action(UIDevice.current.orientation)
             }
@@ -237,4 +226,13 @@ extension DateComponentsFormatter {
         formatter.allowedUnits = [.minute, .second]
         return formatter
     }()
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(players: [
+            .init(id: 1, initialTime: 60),
+            .init(id: 2, initialTime: 120),
+        ])
+    }
 }
