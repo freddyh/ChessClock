@@ -2,19 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     @State var activePlayer: Int = 1
+    @State var players: [Player]
     @State var gameState: Int = 0
-
     @State var playerOneEndDate: Date?
     @State var playerTwoEndDate: Date?
-
     let playerOneClockInitial: TimeInterval = 60 * 10
     let playerTwoClockInitial: TimeInterval = 60 * 10
-
     @State var playerOneTimeRemaining: TimeInterval = 60 * 10
     @State var playerTwoTimeRemaining: TimeInterval = 60 * 10
     @State var lastClockStart: Date? = nil
     @State var secondsElapsed: TimeInterval = 0
-
     @State var rotation: Angle = .degrees(90)
 
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -23,39 +20,19 @@ struct ContentView: View {
         VStack {
             PlayerButton(
                 enabled: isPlayerEnabled(player: 1),
-                timeRemaining: playerOneTimeRemaining
+                timeRemaining: players[0].timeRemaining
             ) {
                 giveControlTo(player: 2, date: Date())
             }
-            #if RELEASE
-            .rotationEffect(.degrees(90))
-            #endif
+//            #if RELEASE
+//            .rotationEffect(rotation)
+//            #endif
 
-            HStack {
-                Spacer()
-
-                Button(action: { resetGame() }) {
-                    Image(systemName: "gobackward")
-                }
-
-                Spacer()
-
-                Button(action: { playOrPause(gameState: gameState) }) {
-                    Image(systemName: gameState == 1 ? "pause" : "play.fill")
-                }
-
-                Spacer()
-
-                Button(action: { openSettings() }) {
-                    Image(systemName: "gear")
-                }
-
-                Spacer()
-            }
+            pauseAndSettingsView
 
             PlayerButton(
                 enabled: isPlayerEnabled(player: 2),
-                timeRemaining: playerTwoTimeRemaining
+                timeRemaining: players[1].timeRemaining
             ) {
                 giveControlTo(player: 1, date: Date())
             }
@@ -65,6 +42,7 @@ struct ContentView: View {
             guard gameState == 1 else {
                 return
             }
+
             updateTimeRemaining(for: activePlayer)
         }
         .onRotate { newOrientation in
@@ -79,34 +57,53 @@ struct ContentView: View {
         }
     }
 
+    var pauseAndSettingsView: some View {
+        HStack {
+            Spacer()
+
+            Button(action: { resetGame() }) {
+                Image(systemName: "gobackward")
+            }
+
+            Spacer()
+
+            Button(action: { playOrPause(gameState: gameState) }) {
+                Image(systemName: gameState == 1 ? "pause" : "play.fill")
+            }
+
+            Spacer()
+
+            Button(action: { openSettings() }) {
+                Image(systemName: "gear")
+            }
+
+            Spacer()
+        }
+    }
+
     func isPlayerEnabled(player: Int) -> Bool {
         return activePlayer == player && gameState != 0
     }
 
     func updateTimeRemaining(for player: Int) {
-        switch player {
-        case 1:
-            playerOneTimeRemaining =  playerOneEndDate!.timeIntervalSince1970 - Date().timeIntervalSince1970
-        case 2:
-            playerTwoTimeRemaining = playerTwoEndDate!.timeIntervalSince1970 - Date().timeIntervalSince1970
-        default:
-            fatalError()
+        var p = currentPlayer(number: player)
+        if p.clockEnd == nil {
+            p.clockEnd = Date().addingTimeInterval(p.initialTime)
         }
+        p.timeRemaining = p.clockEnd!.timeIntervalSince1970 - Date().timeIntervalSince1970
+        updatePlayer(number: player, player: p)
     }
 
     func giveControlTo(player: Int, date: Date) {
         guard activePlayer != player else { return }
 
-        switch activePlayer {
-        case 1:
-            playerTwoEndDate = date.addingTimeInterval(playerTwoTimeRemaining)
-        case 2:
-            playerOneEndDate = date.addingTimeInterval(playerOneTimeRemaining)
-        default:
-            break
-        }
+        if gameState == 0 { gameState = 1 }
 
-        self.activePlayer = player
+        var p = currentPlayer(number: player)
+        p.updateClockEndFrom(now: date)
+        updatePlayer(number: player, player: p)
+
+        activePlayer = player
     }
 
     func resetGame() {
@@ -120,13 +117,14 @@ struct ContentView: View {
             // Game Initilizer
             if lastClockStart == nil {
                 lastClockStart = Date()
-                playerOneEndDate = Date().addingTimeInterval(playerOneClockInitial)
-                playerTwoEndDate = Date().addingTimeInterval(playerTwoClockInitial)
+
+                var p = currentPlayer(number: activePlayer)
+                p.updateClockEndFrom(now: Date())
+                updatePlayer(number: activePlayer, player: p)
             }
             else {
                 unPausePlayer(activePlayer)
             }
-
 
             self.gameState = 1
         case 1:
@@ -136,15 +134,18 @@ struct ContentView: View {
         }
     }
 
+    func currentPlayer(number: Int) -> Player {
+        players[number - 1]
+    }
+
+    func updatePlayer(number: Int, player: Player) {
+        players[number - 1] = player
+    }
+
     func unPausePlayer(_ player: Int) {
-        switch player {
-        case 1:
-            playerOneEndDate = Date().addingTimeInterval(playerOneTimeRemaining)
-        case 2:
-            playerTwoEndDate = Date().addingTimeInterval(playerTwoTimeRemaining)
-        default:
-            break
-        }
+        var p = currentPlayer(number: player)
+        p.updateClockEndFrom(now: Date())
+        updatePlayer(number: player, player: p)
     }
 
     func openSettings() {
@@ -157,6 +158,17 @@ struct Player {
     var clockEnd: Date?
     var initialTime: TimeInterval
     var timeRemaining: TimeInterval
+
+    init(id: Int, clockEnd: Date? = nil, initialTime: TimeInterval, timeRemaining: TimeInterval? = nil) {
+        self.id = id
+        self.clockEnd = clockEnd
+        self.initialTime = initialTime
+        self.timeRemaining = timeRemaining ?? initialTime
+    }
+
+    mutating func updateClockEndFrom(now: Date) {
+        clockEnd = now.addingTimeInterval(timeRemaining)
+    }
 }
 
 struct PlayerButton: View {
@@ -168,7 +180,7 @@ struct PlayerButton: View {
         Button(action: action, label: {
             Rectangle().fill(enabled ? .green : .gray)
                 .overlay(
-                    Text("\(timeRemaining / 60.0)")
+                    Text(timeRemaining.formatted())
                         .font(.system(size: 40))
                         .fontWeight(.semibold)
                     #if RELEASE
@@ -184,13 +196,11 @@ struct PlayerButton: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(players: [
+            .init(id: 1, initialTime: 60),
+            .init(id: 2, initialTime: 120),
+        ])
     }
-}
-
-
-extension NumberFormatter {
-//    static var shared: [String: NumberFormatter]
 }
 
 // Device Orientation Subscriber
@@ -200,7 +210,7 @@ struct DeviceRotationViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onAppear()
+//            .onAppear()
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
                 action(UIDevice.current.orientation)
             }
@@ -211,4 +221,13 @@ extension View {
     func onRotate(perform action: @escaping (UIDeviceOrientation) -> Void) -> some View {
         self.modifier(DeviceRotationViewModifier(action: action))
     }
+}
+
+extension DateComponentsFormatter {
+    static var remainingTimeFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.minute, .second]
+        return formatter
+    }()
 }
