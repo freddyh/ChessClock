@@ -11,34 +11,41 @@ struct ContentView: View {
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     func buttonFillColor(player: Int, gameState: GameState) -> Color {
-        guard gameState != .outOfTime else { return .red }
-        guard player == activePlayer else { return .gray }
-        return .green
+        switch gameState {
+        case .active:
+            return player == activePlayer ? .green : .gray
+        case .ready, .outOfTime, .paused:
+            return .gray
+        }
     }
 
     var body: some View {
-        VStack {
-            PlayerButtonView(
-                fill: buttonFillColor(player: 1, gameState: gameState),
-                enabled: isPlayerEnabled(player: 1),
-                timeRemaining: playerOne.timeRemaining,
-                rotation: .degrees(180)
-            ) {
-                giveControlTo(player: 2, date: Date())
+        ZStack {
+            VStack(spacing: 0) {
+                PlayerButtonView(
+                    fill: buttonFillColor(player: 1, gameState: gameState),
+                    enabled: isPlayerEnabled(player: 1),
+                    timeRemaining: playerOne.timeRemaining,
+                    rotation: .degrees(180)
+                ) {
+                    giveControlTo(player: 2, date: Date())
+                }
+
+                PlayerButtonView(
+                    fill: buttonFillColor(player: 2, gameState: gameState),
+                    enabled: isPlayerEnabled(player: 2),
+                    timeRemaining: playerTwo.timeRemaining,
+                    rotation: .degrees(0)
+                ) {
+                    giveControlTo(player: 1, date: Date())
+                }
+
             }
 
             pauseAndSettingsView
-
-            PlayerButtonView(
-                fill: buttonFillColor(player: 2, gameState: gameState),
-                enabled: isPlayerEnabled(player: 2),
-                timeRemaining: playerTwo.timeRemaining,
-                rotation: .degrees(0)
-            ) {
-                giveControlTo(player: 1, date: Date())
-            }
-
         }
+
+        .edgesIgnoringSafeArea(.all)
         .onReceive(timer) { input in
             guard gameState == .active, let activePlayer else {
                 return
@@ -63,24 +70,28 @@ struct ContentView: View {
             Spacer()
 
             if gameState != .ready {
-                Button(action: { resetGame() }) {
+                Button(action: resetGame) {
                     Image(systemName: "gobackward")
                 }
                 Spacer()
             }
 
-//            Button(action: { playOrPause(gameState: gameState) }) {
-//                Image(systemName: gameState == .active ? "pause" : "play.fill")
-//            }
-//
-//            Spacer()
+            if gameState == .active {
+                Button(action: pauseGame) {
+                    Image(systemName: "pause")
+                }
 
-            Button(action: { openSettings() }) {
-                Image(systemName: "gear")
+                Spacer()
             }
+            else {
+                Button(action: openSettings) {
+                    Image(systemName: "gear")
+                }
 
-            Spacer()
+                Spacer()
+            }
         }
+        .zIndex(100)
     }
 
     func isPlayerEnabled(player: Int) -> Bool {
