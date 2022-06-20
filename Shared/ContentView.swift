@@ -2,10 +2,10 @@ import SwiftUI
 
 struct ContentView: View {
     @State var activePlayer: Int?
-    @State var players: [Player]
+    @State var playerOne: Player
+    @State var playerTwo: Player
     @State var gameState: GameState = .ready
     @State var lastClockStart: Date? = nil
-    @State var secondsElapsed: TimeInterval = 0
     @State var rotation: Angle = .degrees(90)
 
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -21,7 +21,7 @@ struct ContentView: View {
             PlayerButtonView(
                 fill: buttonFillColor(player: 1, gameState: gameState),
                 enabled: isPlayerEnabled(player: 1),
-                timeRemaining: players[0].timeRemaining
+                timeRemaining: playerOne.timeRemaining
             ) {
                 giveControlTo(player: 2, date: Date())
             }
@@ -31,7 +31,7 @@ struct ContentView: View {
             PlayerButtonView(
                 fill: buttonFillColor(player: 2, gameState: gameState),
                 enabled: isPlayerEnabled(player: 2),
-                timeRemaining: players[1].timeRemaining
+                timeRemaining: playerTwo.timeRemaining
             ) {
                 giveControlTo(player: 1, date: Date())
             }
@@ -182,11 +182,25 @@ struct ContentView: View {
     }
 
     func currentPlayer(number: Int) -> Player {
-        players[number - 1]
+        switch number {
+        case 1:
+            return playerOne
+        case 2:
+            return playerTwo
+        default:
+            fatalError()
+        }
     }
 
     func updatePlayer(number: Int, player: Player) {
-        players[number - 1] = player
+        switch number {
+        case 1:
+            playerOne = player
+        case 2:
+            playerTwo = player
+        default:
+            fatalError()
+        }
     }
 
     func unPausePlayer(_ player: Int) {
@@ -293,9 +307,9 @@ extension DateComponentsFormatter {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(players: [
-            .init(id: 1, initialTime: 5),
-            .init(id: 2, initialTime: 20),
-        ])
+        ContentView(
+            playerOne: Player(id: 1, initialTime: 10),
+            playerTwo: Player(id: 2, initialTime: 20)
+        )
     }
 }

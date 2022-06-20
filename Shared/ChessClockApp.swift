@@ -11,9 +11,10 @@ import SwiftUI
 struct ChessClockApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(players: [
-                .init(id: 1, initialTime: 60),
-                .init(id: 2, initialTime: 120),
-            ])        }
+            ContentView(
+                playerOne: Player(id: 1, initialTime: 10),
+                playerTwo: Player(id: 2, initialTime: 20)
+            )
+        }
     }
 }
