@@ -24,9 +24,6 @@ struct ContentView: View {
             ) {
                 giveControlTo(player: 2, date: Date())
             }
-//            #if RELEASE
-//            .rotationEffect(rotation)
-//            #endif
 
             pauseAndSettingsView
 
@@ -188,8 +185,8 @@ struct PlayerButton: View {
                                     second: Int(timeRemaining)
                                 )
                             ) ?? "\(timeRemaining)")
-                        .font(.system(size: 40))
-                        .fontWeight(.semibold)
+                    .font(.system(size: 40))
+                    .fontWeight(.semibold)
                     #if RELEASE
                         .rotationEffect(.degrees(90))
                     #endif
