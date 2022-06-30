@@ -13,6 +13,7 @@
 		4684577328559F2700721382 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4684576128559F2600721382 /* ContentView.swift */; };
 		4684577428559F2700721382 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4684576228559F2700721382 /* Assets.xcassets */; };
 		4684577528559F2700721382 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4684576228559F2700721382 /* Assets.xcassets */; };
+		46A72E81286D771900393C71 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 46A72E80286D771900393C71 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46A72E81286D771900393C71 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +96,9 @@
 			dependencies = (
 			);
 			name = "ChessClock (iOS)";
+			packageProductDependencies = (
+				46A72E80286D771900393C71 /* ComposableArchitecture */,
+			);
 			productName = "ChessClock (iOS)";
 			productReference = 4684576728559F2700721382 /* ChessClock.app */;
 			productType = "com.apple.product-type.application";
@@ -142,6 +147,9 @@
 				Base,
 			);
 			mainGroup = 4684575A28559F2500721382;
+			packageReferences = (
+				46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+			);
 			productRefGroup = 4684576828559F2700721382 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -456,6 +464,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		46A72E80286D771900393C71 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4684575B28559F2500721382 /* Project object */;
 }

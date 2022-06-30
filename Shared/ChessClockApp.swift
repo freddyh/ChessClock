@@ -5,79 +5,145 @@
 //  Created by Freddy Hernandez Jr on 6/11/22.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 @main
 struct ChessClockApp: App {
-    @StateObject var appViewModel: AppViewModel = .init(
-        playerOne: Player(id: 1, initialTime: 10),
-        playerTwo: Player(id: 2, initialTime: 20)
-    )
-
     var body: some Scene {
         WindowGroup {
-            ContentView(appViewModel: appViewModel)
+            ContentViewComposable(
+                store: .init(
+                    initialState: .init(
+                        playerOne: Player(id: 1, initialTime: 10),
+                        playerTwo: Player(id: 1, initialTime: 10),
+                        gameState: .ready
+                    ),
+                reducer: appReducer,
+                    environment: AppEnvironment.init(mainQueue: .main)
+                )
+            )
         }
     }
 }
 
-class AppViewModel: ObservableObject {
-    @Published var playerOne: Player
-    @Published var playerTwo: Player
-    @Published var activePlayer: Int?
-    @Published var gameState: GameState = .ready
-    @Published var lastClockStart: Date?
+struct AppState: Equatable {
+    var playerOne: Player
+    var playerTwo: Player
+    var activePlayer: Int?
+    var gameState: GameState
+    var lastClockStart: Date?
+}
 
-    init(playerOne: Player, playerTwo: Player) {
-        self.playerOne = playerOne
-        self.playerTwo = playerTwo
-    }
+enum AppAction: Equatable {
+    case playerClockButtonTapped(Int)
+    case settingsButtonTapped
+    case gameStateButtonTapped
+    case pauseGame
+    case playGame
+    case resetGame
+    case playerTimeUpdated(Int)
+}
 
-    func updatePlayerTime(id: Int, from now: Date) {
-        switch id {
+struct AppEnvironment {
+    var mainQueue: AnySchedulerOf<DispatchQueue>
+//    var numberFact: (Int) -> Effect<String, ApiError>
+}
+
+
+let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, environment in
+    switch action {
+    case .playerClockButtonTapped(let id):
+        switch state.gameState {
+        case .ready:
+            // give control to other player
+            state.gameState = .active
+            let date = Date()
+            switch id {
+            case 1:
+                state.playerOne.updateClockEndFrom(now: date)
+            case 2:
+                state.playerTwo.updateClockEndFrom(now: date)
+            default:
+                fatalError()
+            }
+            state.activePlayer = id
+
+        case .active:
+            // must be the active player to give control to other player
+            guard state.activePlayer != id else { break }
+            let date = Date()
+            if state.gameState == .paused { state.gameState = .active }
+            switch id {
+            case 1:
+                state.playerOne.updateClockEndFrom(now: date)
+            case 2:
+                state.playerTwo.updateClockEndFrom(now: date)
+            default:
+                fatalError()
+            }
+            state.activePlayer = id
+        case .paused:
+            // give control to other player
+            state.gameState = .active
+            let date = Date()
+            switch id {
+            case 1:
+                state.playerOne.updateClockEndFrom(now: date)
+            case 2:
+                state.playerTwo.updateClockEndFrom(now: date)
+            default:
+                fatalError()
+            }
+            state.activePlayer = id
+        case .outOfTime:
+            break
+        }
+        return Effect.none
+    case .settingsButtonTapped:
+        return Effect.none
+    case .gameStateButtonTapped:
+        return Effect.none
+    case .pauseGame:
+        state.gameState = .paused
+        return Effect.none
+    case .playGame:
+        state.lastClockStart = Date()
+
+        let date = Date()
+        switch state.activePlayer {
         case 1:
-            playerOne.updateTimeRemaining(from: now)
+            state.playerOne.updateClockEndFrom(now: date)
         case 2:
-            playerTwo.updateTimeRemaining(from: now)
+            state.playerTwo.updateClockEndFrom(now: date)
         default:
             fatalError()
         }
 
-        if isPlayerOutOfTime(id: id) {
-            gameState = .outOfTime
-        }
-    }
 
-    func updateClockEndFrom(id: Int, date: Date) {
+        return Effect.none
+    case .resetGame:
+        state.activePlayer = nil
+        state.playerOne.resetTimeRemaining()
+        state.playerTwo.resetTimeRemaining()
+        state.gameState = .ready
+        state.lastClockStart = nil
+
+        return Effect.none
+    case .playerTimeUpdated(let id):
+        let now = Date()
         switch id {
         case 1:
-            playerOne.updateClockEndFrom(now: date)
+            state.playerOne.updateTimeRemaining(from: now)
         case 2:
-            playerTwo.updateClockEndFrom(now: date)
+            state.playerTwo.updateTimeRemaining(from: now)
         default:
             fatalError()
         }
-    }
 
-    func resetPlayerTimeRemaining(id: Int) {
-        switch id {
-        case 1:
-            playerOne.resetTimeRemaining()
-        case 2:
-            playerTwo.resetTimeRemaining()
-        default:
-            fatalError()
+        if state.playerTwo.timeRemaining <= 0 || state.playerOne.timeRemaining <= 0 {
+            state.gameState = .outOfTime
         }
-    }
-
-    func isPlayerOutOfTime(id: Int) -> Bool {
-        switch id {
-        case 1:
-            return playerOne.timeRemaining <= 0
-        case 2:
-            return playerTwo.timeRemaining <= 0
-        default:
-            fatalError()
-        }
+        return .none
     }
 }
