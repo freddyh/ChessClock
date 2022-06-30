@@ -6,7 +6,6 @@ struct ContentView: View {
     @State var playerTwo: Player
     @State var gameState: GameState = .ready
     @State var lastClockStart: Date? = nil
-    @State var rotation: Angle = .degrees(90)
 
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
@@ -14,8 +13,10 @@ struct ContentView: View {
         switch gameState {
         case .active:
             return player == activePlayer ? .green : .gray
-        case .ready, .outOfTime, .paused:
+        case .ready, .paused:
             return .gray
+        case .outOfTime:
+            return .red
         }
     }
 
@@ -25,17 +26,18 @@ struct ContentView: View {
                 PlayerButtonView(
                     fill: buttonFillColor(player: 1, gameState: gameState),
                     enabled: isPlayerEnabled(player: 1),
-                    timeRemaining: playerOne.timeRemaining,
-                    rotation: .degrees(180)
+                    timeRemaining: playerOne.timeRemaining
                 ) {
                     giveControlTo(player: 2, date: Date())
                 }
+                .rotationEffect(.degrees(180))
+
+                Divider()
 
                 PlayerButtonView(
                     fill: buttonFillColor(player: 2, gameState: gameState),
                     enabled: isPlayerEnabled(player: 2),
-                    timeRemaining: playerTwo.timeRemaining,
-                    rotation: .degrees(0)
+                    timeRemaining: playerTwo.timeRemaining
                 ) {
                     giveControlTo(player: 1, date: Date())
                 }
@@ -52,16 +54,6 @@ struct ContentView: View {
             }
 
             updateTimeRemaining(for: activePlayer)
-        }
-        .onRotate { newOrientation in
-            switch newOrientation {
-            case .portraitUpsideDown:
-                rotation = .degrees(-90)
-            case .portrait:
-                rotation = .degrees(90)
-            default:
-                break
-            }
         }
     }
 
@@ -264,7 +256,6 @@ struct PlayerButtonView: View {
     var fill: Color
     var enabled: Bool
     var timeRemaining: Double
-    var rotation: Angle
     var action: () -> Void
 
     var body: some View {
@@ -281,8 +272,6 @@ struct PlayerButtonView: View {
                             ) ?? "\(timeRemaining)")
                     .font(.system(size: 40))
                     .fontWeight(.semibold)
-                    .rotationEffect(rotation)
-
                 )
         })
         .buttonStyle(.plain)
@@ -316,6 +305,7 @@ extension DateComponentsFormatter {
         return formatter
     }()
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
