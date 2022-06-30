@@ -1,24 +1,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var appViewModel: AppViewModel
     @State var activePlayer: Int?
-    @State var playerOne: Player
-    @State var playerTwo: Player
     @State var gameState: GameState = .ready
     @State var lastClockStart: Date? = nil
-
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-
-    func buttonFillColor(player: Int, gameState: GameState) -> Color {
-        switch gameState {
-        case .active:
-            return player == activePlayer ? .green : .gray
-        case .ready, .paused:
-            return .gray
-        case .outOfTime:
-            return .red
-        }
-    }
 
     var body: some View {
         ZStack {
@@ -26,7 +13,7 @@ struct ContentView: View {
                 PlayerButtonView(
                     fill: buttonFillColor(player: 1, gameState: gameState),
                     enabled: isPlayerEnabled(player: 1),
-                    timeRemaining: playerOne.timeRemaining
+                    timeRemaining: appViewModel.playerOne.timeRemaining
                 ) {
                     giveControlTo(player: 2, date: Date())
                 }
@@ -37,7 +24,7 @@ struct ContentView: View {
                 PlayerButtonView(
                     fill: buttonFillColor(player: 2, gameState: gameState),
                     enabled: isPlayerEnabled(player: 2),
-                    timeRemaining: playerTwo.timeRemaining
+                    timeRemaining: appViewModel.playerTwo.timeRemaining
                 ) {
                     giveControlTo(player: 1, date: Date())
                 }
@@ -54,6 +41,17 @@ struct ContentView: View {
             }
 
             updateTimeRemaining(for: activePlayer)
+        }
+    }
+
+    func buttonFillColor(player: Int, gameState: GameState) -> Color {
+        switch gameState {
+        case .active:
+            return player == activePlayer ? .green : .gray
+        case .ready, .paused:
+            return .gray
+        case .outOfTime:
+            return .red
         }
     }
 
@@ -100,13 +98,8 @@ struct ContentView: View {
     }
 
     func updateTimeRemaining(for player: Int) {
-        var p = currentPlayer(number: player)
-        if p.clockEnd == nil {
-            p.clockEnd = Date().addingTimeInterval(p.initialTime)
-        }
-        p.timeRemaining = p.clockEnd!.timeIntervalSince1970 - Date().timeIntervalSince1970
-        updatePlayer(number: player, player: p)
-        if p.timeRemaining < 0 {
+        appViewModel.updatePlayerTime(id: player, from: Date())
+        if appViewModel.isPlayerOutOfTime(id: player) {
             gameState = .outOfTime
         }
     }
@@ -116,32 +109,20 @@ struct ContentView: View {
         case .ready:
             // give control to other player
             gameState = .active
-            var p = currentPlayer(number: player)
-            p.updateClockEndFrom(now: date)
-            updatePlayer(number: player, player: p)
-
+            appViewModel.updateClockEndFrom(id: player, date: date)
             activePlayer = player
 
         case .active:
             // must be the active player to give control to other player
-
             guard activePlayer != player else { return }
-
             if gameState == .paused { gameState = .active }
-
-            var p = currentPlayer(number: player)
-            p.updateClockEndFrom(now: date)
-            updatePlayer(number: player, player: p)
-
+            appViewModel.updateClockEndFrom(id: player, date: date)
             activePlayer = player
 
         case .paused:
             // give control to other player
             gameState = .active
-            var p = currentPlayer(number: player)
-            p.updateClockEndFrom(now: date)
-            updatePlayer(number: player, player: p)
-
+            appViewModel.updateClockEndFrom(id: player, date: date)
             activePlayer = player
 
         case .outOfTime:
@@ -151,12 +132,8 @@ struct ContentView: View {
 
     func resetGame() {
         activePlayer = nil
-        var p1 = currentPlayer(number: 1)
-        var p2 = currentPlayer(number: 2)
-        p1.resetTimeRemaining()
-        p2.resetTimeRemaining()
-        updatePlayer(number: 1, player: p1)
-        updatePlayer(number: 2, player: p2)
+        appViewModel.resetPlayerTimeRemaining(id: 1)
+        appViewModel.resetPlayerTimeRemaining(id: 2)
         gameState = .ready
         lastClockStart = nil
     }
@@ -170,10 +147,7 @@ struct ContentView: View {
                 // Game Initilizer
                 if lastClockStart == nil {
                     lastClockStart = Date()
-
-                    var p = currentPlayer(number: activePlayer)
-                    p.updateClockEndFrom(now: Date())
-                    updatePlayer(number: activePlayer, player: p)
+                    appViewModel.updateClockEndFrom(id: activePlayer, date: Date())
                 }
                 else {
                     unPausePlayer(activePlayer)
@@ -186,36 +160,13 @@ struct ContentView: View {
         }
     }
 
-    func currentPlayer(number: Int) -> Player {
-        switch number {
-        case 1:
-            return playerOne
-        case 2:
-            return playerTwo
-        default:
-            fatalError()
-        }
-    }
-
-    func updatePlayer(number: Int, player: Player) {
-        switch number {
-        case 1:
-            playerOne = player
-        case 2:
-            playerTwo = player
-        default:
-            fatalError()
-        }
-    }
-
     func unPausePlayer(_ player: Int) {
-        var p = currentPlayer(number: player)
-        p.updateClockEndFrom(now: Date())
-        updatePlayer(number: player, player: p)
+        appViewModel.updateClockEndFrom(id: player, date: Date())
     }
 
     func openSettings() {
-        pauseGame()
+//        if gameState == .outOfTime { return }
+//        pauseGame()
     }
 
     func pauseGame() {
@@ -249,6 +200,13 @@ struct Player {
 
     mutating func resetTimeRemaining() {
         timeRemaining = initialTime
+    }
+
+    mutating func updateTimeRemaining(from now: Date) {
+        if clockEnd == nil {
+            clockEnd = now.addingTimeInterval(initialTime)
+        }
+        timeRemaining = clockEnd!.timeIntervalSince1970 - now.timeIntervalSince1970
     }
 }
 
@@ -292,8 +250,10 @@ extension DateComponentsFormatter {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(
-            playerOne: Player(id: 1, initialTime: 10),
-            playerTwo: Player(id: 2, initialTime: 20)
+            appViewModel: AppViewModel.init(
+                playerOne: Player.init(id: 1, initialTime: 5),
+                playerTwo: Player.init(id: 2, initialTime: 10)
+            )
         )
     }
 }
