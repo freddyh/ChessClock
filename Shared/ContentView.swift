@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var appViewModel: AppViewModel
+    @State var isSettingsPresented: Bool = false
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -30,7 +31,6 @@ struct ContentView: View {
 
             pauseAndSettingsView
         }
-
         .edgesIgnoringSafeArea(.all)
         .onReceive(timer) { input in
             guard appViewModel.gameState == .active, let activePlayer = appViewModel.activePlayer else {
@@ -38,6 +38,35 @@ struct ContentView: View {
             }
 
             updateTimeRemaining(for: activePlayer)
+        }
+        .fullScreenCover(isPresented: $isSettingsPresented) {
+            VStack {
+                HStack {
+                    Text("1")
+                    Stepper {
+                        Text("minutes")
+                    } onIncrement: {
+                    } onDecrement: {
+                        isSettingsPresented = false
+
+                    } onEditingChanged: { isEditing in
+                        print(isEditing)
+                    }
+
+                }
+
+                HStack {
+                    Text("1")
+
+                    Stepper {
+                        Text("seconds")
+                    } onIncrement: {
+                    } onDecrement: {
+                    } onEditingChanged: { isEditing in
+                        print(isEditing)
+                    }
+                }
+            }
         }
     }
 
@@ -163,8 +192,8 @@ struct ContentView: View {
     }
 
     func openSettings() {
-//        if gameState == .outOfTime { return }
-//        pauseGame()
+        pauseGame()
+        isSettingsPresented = true
     }
 
     func pauseGame() {
@@ -243,7 +272,6 @@ extension DateComponentsFormatter {
         return formatter
     }()
 }
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
