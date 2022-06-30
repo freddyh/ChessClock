@@ -24,6 +24,9 @@ struct ChessClockApp: App {
 class AppViewModel: ObservableObject {
     @Published var playerOne: Player
     @Published var playerTwo: Player
+    @Published var activePlayer: Int?
+    @Published var gameState: GameState = .ready
+    @Published var lastClockStart: Date?
 
     init(playerOne: Player, playerTwo: Player) {
         self.playerOne = playerOne
@@ -38,6 +41,10 @@ class AppViewModel: ObservableObject {
             playerTwo.updateTimeRemaining(from: now)
         default:
             fatalError()
+        }
+
+        if isPlayerOutOfTime(id: id) {
+            gameState = .outOfTime
         }
     }
 

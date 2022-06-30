@@ -2,16 +2,13 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var appViewModel: AppViewModel
-    @State var activePlayer: Int?
-    @State var gameState: GameState = .ready
-    @State var lastClockStart: Date? = nil
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 PlayerButtonView(
-                    fill: buttonFillColor(player: 1, gameState: gameState),
+                    fill: buttonFillColor(player: 1, gameState: appViewModel.gameState),
                     enabled: isPlayerEnabled(player: 1),
                     timeRemaining: appViewModel.playerOne.timeRemaining
                 ) {
@@ -22,7 +19,7 @@ struct ContentView: View {
                 Divider()
 
                 PlayerButtonView(
-                    fill: buttonFillColor(player: 2, gameState: gameState),
+                    fill: buttonFillColor(player: 2, gameState: appViewModel.gameState),
                     enabled: isPlayerEnabled(player: 2),
                     timeRemaining: appViewModel.playerTwo.timeRemaining
                 ) {
@@ -36,7 +33,7 @@ struct ContentView: View {
 
         .edgesIgnoringSafeArea(.all)
         .onReceive(timer) { input in
-            guard gameState == .active, let activePlayer else {
+            guard appViewModel.gameState == .active, let activePlayer = appViewModel.activePlayer else {
                 return
             }
 
@@ -47,7 +44,7 @@ struct ContentView: View {
     func buttonFillColor(player: Int, gameState: GameState) -> Color {
         switch gameState {
         case .active:
-            return player == activePlayer ? .green : .gray
+            return player == appViewModel.activePlayer ? .green : .gray
         case .ready, .paused:
             return .gray
         case .outOfTime:
@@ -59,14 +56,14 @@ struct ContentView: View {
         HStack {
             Spacer()
 
-            if gameState != .ready {
+            if appViewModel.gameState != .ready {
                 Button(action: resetGame) {
                     Image(systemName: "gobackward")
                 }
                 Spacer()
             }
 
-            if gameState == .active {
+            if appViewModel.gameState == .active {
                 Button(action: pauseGame) {
                     Image(systemName: "pause")
                 }
@@ -85,11 +82,11 @@ struct ContentView: View {
     }
 
     func isPlayerEnabled(player: Int) -> Bool {
-        switch gameState {
+        switch appViewModel.gameState {
         case .ready:
             return true
         case .active:
-            return activePlayer == player
+            return appViewModel.activePlayer == player
         case .paused:
             return true
         case .outOfTime:
@@ -99,31 +96,28 @@ struct ContentView: View {
 
     func updateTimeRemaining(for player: Int) {
         appViewModel.updatePlayerTime(id: player, from: Date())
-        if appViewModel.isPlayerOutOfTime(id: player) {
-            gameState = .outOfTime
-        }
     }
 
     func giveControlTo(player: Int, date: Date) {
-        switch gameState {
+        switch appViewModel.gameState {
         case .ready:
             // give control to other player
-            gameState = .active
+            appViewModel.gameState = .active
             appViewModel.updateClockEndFrom(id: player, date: date)
-            activePlayer = player
+            appViewModel.activePlayer = player
 
         case .active:
             // must be the active player to give control to other player
-            guard activePlayer != player else { return }
-            if gameState == .paused { gameState = .active }
+            guard appViewModel.activePlayer != player else { return }
+            if appViewModel.gameState == .paused { appViewModel.gameState = .active }
             appViewModel.updateClockEndFrom(id: player, date: date)
-            activePlayer = player
+            appViewModel.activePlayer = player
 
         case .paused:
             // give control to other player
-            gameState = .active
+            appViewModel.gameState = .active
             appViewModel.updateClockEndFrom(id: player, date: date)
-            activePlayer = player
+            appViewModel.activePlayer = player
 
         case .outOfTime:
             break
@@ -131,11 +125,11 @@ struct ContentView: View {
     }
 
     func resetGame() {
-        activePlayer = nil
+        appViewModel.activePlayer = nil
         appViewModel.resetPlayerTimeRemaining(id: 1)
         appViewModel.resetPlayerTimeRemaining(id: 2)
-        gameState = .ready
-        lastClockStart = nil
+        appViewModel.gameState = .ready
+        appViewModel.lastClockStart = nil
     }
 
     func playOrPause(gameState: GameState) {
@@ -143,21 +137,25 @@ struct ContentView: View {
         case .active:
             pauseGame()
         case .ready, .paused:
-            if let activePlayer {
+            if let activePlayer = appViewModel.activePlayer {
                 // Game Initilizer
-                if lastClockStart == nil {
-                    lastClockStart = Date()
-                    appViewModel.updateClockEndFrom(id: activePlayer, date: Date())
+                if appViewModel.lastClockStart == nil {
+                    startGame(withPlayer: activePlayer)
                 }
                 else {
                     unPausePlayer(activePlayer)
                 }
 
-                self.gameState = .active
+                self.appViewModel.gameState = .active
             }
         case .outOfTime:
             break
         }
+    }
+
+    func startGame(withPlayer id: Int) {
+        appViewModel.lastClockStart = Date()
+        appViewModel.updateClockEndFrom(id: id, date: Date())
     }
 
     func unPausePlayer(_ player: Int) {
@@ -170,7 +168,7 @@ struct ContentView: View {
     }
 
     func pauseGame() {
-        gameState = .paused
+        appViewModel.gameState = .paused
     }
 }
 
