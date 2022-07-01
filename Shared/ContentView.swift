@@ -134,13 +134,12 @@ extension GameState: Equatable {}
 
 struct Player {
     var id: Int
-    var clockEnd: Date?
+    private var clockEnd: Date?
     var initialTime: TimeInterval
     var timeRemaining: TimeInterval
 
-    init(id: Int, clockEnd: Date? = nil, initialTime: TimeInterval, timeRemaining: TimeInterval? = nil) {
+    init(id: Int, initialTime: TimeInterval, timeRemaining: TimeInterval? = nil) {
         self.id = id
-        self.clockEnd = clockEnd
         self.initialTime = initialTime
         self.timeRemaining = timeRemaining ?? initialTime
     }
@@ -207,7 +206,7 @@ struct ContentView_Previews: PreviewProvider {
                     gameState: .ready
                 ),
                 reducer: appReducer,
-                environment: AppEnvironment.init(mainQueue: .main)
+                environment: .init(mainQueue: .main)
             )
         )
     }

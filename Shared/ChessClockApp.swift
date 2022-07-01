@@ -20,7 +20,7 @@ struct ChessClockApp: App {
                         gameState: .ready
                     ),
                 reducer: appReducer,
-                    environment: AppEnvironment.init(mainQueue: .main)
+                environment: .init(mainQueue: .main)
                 )
             )
         }
@@ -32,7 +32,6 @@ struct AppState: Equatable {
     var playerTwo: Player
     var activePlayer: Int?
     var gameState: GameState
-    var lastClockStart: Date?
 }
 
 enum AppAction: Equatable {
@@ -40,7 +39,6 @@ enum AppAction: Equatable {
     case settingsButtonTapped
     case gameStateButtonTapped
     case pauseGame
-    case playGame
     case resetGame
     case playerTimeUpdated(Int)
 }
@@ -83,6 +81,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
                 fatalError()
             }
             state.activePlayer = id
+
         case .paused:
             // give control to other player
             state.gameState = .active
@@ -96,40 +95,29 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
                 fatalError()
             }
             state.activePlayer = id
+
         case .outOfTime:
             break
         }
         return Effect.none
+
     case .settingsButtonTapped:
         return Effect.none
+
     case .gameStateButtonTapped:
         return Effect.none
+
     case .pauseGame:
         state.gameState = .paused
         return Effect.none
-    case .playGame:
-        state.lastClockStart = Date()
 
-        let date = Date()
-        switch state.activePlayer {
-        case 1:
-            state.playerOne.updateClockEndFrom(now: date)
-        case 2:
-            state.playerTwo.updateClockEndFrom(now: date)
-        default:
-            fatalError()
-        }
-
-
-        return Effect.none
     case .resetGame:
         state.activePlayer = nil
         state.playerOne.resetTimeRemaining()
         state.playerTwo.resetTimeRemaining()
         state.gameState = .ready
-        state.lastClockStart = nil
-
         return Effect.none
+
     case .playerTimeUpdated(let id):
         let now = Date()
         switch id {
