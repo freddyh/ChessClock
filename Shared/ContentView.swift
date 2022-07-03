@@ -12,8 +12,8 @@ struct ContentViewComposable: View {
             ZStack {
                 VStack(spacing: 0) {
                     PlayerButtonView(
-                        fill: buttonFillColor(player: 1, gameState: viewStore.gameState, activePlayer: viewStore.activePlayer),
-                        enabled: isPlayerEnabled(gameState: viewStore.gameState, player: 1, activePlayer: viewStore.activePlayer ?? -1),
+                        fill: buttonFillColor(player: 1, gameState: viewStore.gameState),
+                        enabled: isPlayerEnabled(gameState: viewStore.gameState, player: 1),
                         timeRemaining: viewStore.playerOne.timeRemaining
                     ) {
                         viewStore.send(.playerClockButtonTapped(2))
@@ -23,8 +23,8 @@ struct ContentViewComposable: View {
                     Divider()
 
                     PlayerButtonView(
-                        fill: buttonFillColor(player: 2, gameState: viewStore.gameState, activePlayer: viewStore.activePlayer),
-                        enabled: isPlayerEnabled(gameState: viewStore.gameState, player: 2, activePlayer: viewStore.activePlayer ?? -1),
+                        fill: buttonFillColor(player: 2, gameState: viewStore.gameState),
+                        enabled: isPlayerEnabled(gameState: viewStore.gameState, player: 2),
                         timeRemaining: viewStore.playerTwo.timeRemaining
                     ) {
                         viewStore.send(.playerClockButtonTapped(1))
@@ -42,7 +42,7 @@ struct ContentViewComposable: View {
                         Spacer()
                     }
 
-                    if viewStore.gameState == .active {
+                    if case .active(_) = viewStore.gameState {
                         Button(action: { viewStore.send(.pauseGame) }) {
                             Image(systemName: "pause")
                         }
@@ -61,7 +61,7 @@ struct ContentViewComposable: View {
             }
             .edgesIgnoringSafeArea(.all)
             .onReceive(timer) { input in
-                guard viewStore.gameState == .active, let activePlayer = viewStore.activePlayer else {
+                guard case .active(let activePlayer) = viewStore.gameState else {
                     return
                 }
 
@@ -109,9 +109,9 @@ struct ContentViewComposable: View {
         }
     }
 
-    func buttonFillColor(player: Int, gameState: GameState, activePlayer: Int?) -> Color {
+    func buttonFillColor(player: Int, gameState: GameState) -> Color {
         switch gameState {
-        case .active:
+        case .active(let activePlayer):
             return player == activePlayer ? .green : .gray
         case .ready, .paused:
             return .gray
@@ -120,11 +120,11 @@ struct ContentViewComposable: View {
         }
     }
 
-    func isPlayerEnabled(gameState: GameState, player: Int, activePlayer: Int?) -> Bool {
+    func isPlayerEnabled(gameState: GameState, player: Int) -> Bool {
         switch gameState {
         case .ready:
             return true
-        case .active:
+        case .active(let activePlayer):
             return activePlayer == player
         case .paused:
             return true
@@ -136,9 +136,9 @@ struct ContentViewComposable: View {
 
 enum GameState {
     case ready
-    case active
-    case paused
-    case outOfTime
+    case active(playerId: Int)
+    case paused(playerId: Int)
+    case outOfTime(playerId: Int)
 }
 
 extension GameState: Equatable {}
@@ -181,16 +181,20 @@ struct PlayerButtonView: View {
         Button(action: action, label: {
             Rectangle().fill(fill)
                 .overlay(
-                    Text(
-                        DateComponentsFormatter
-                            .remainingTimeFormatter
-                            .string(
-                                for: DateComponents(
-                                    second: Int(timeRemaining)
-                                )
-                            ) ?? "\(timeRemaining)")
-                    .font(.system(size: 40))
-                    .fontWeight(.semibold)
+                    VStack {
+                        Text(
+                            DateComponentsFormatter
+                                .remainingTimeFormatter
+                                .string(
+                                    for: DateComponents(
+                                        second: Int(timeRemaining)
+                                    )
+                                ) ?? "\(timeRemaining)")
+                        .font(.system(size: 40))
+                        .fontWeight(.semibold)
+
+                        if timeRemaining <= 0 { Text("Out of Time") }
+                    }
                 )
         })
         .buttonStyle(.plain)

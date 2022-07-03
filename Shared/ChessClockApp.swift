@@ -30,7 +30,6 @@ struct ChessClockApp: App {
 struct AppState: Equatable {
     var playerOne: Player
     var playerTwo: Player
-    var activePlayer: Int?
     var gameState: GameState
 }
 
@@ -55,7 +54,6 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
         switch state.gameState {
         case .ready:
             // give control to other player
-            state.gameState = .active
             let date = Date()
             switch id {
             case 1:
@@ -65,13 +63,24 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
             default:
                 fatalError()
             }
-            state.activePlayer = id
+            state.gameState = .active(playerId: id)
+            return .none
 
         case .active:
             // must be the active player to give control to other player
-            guard state.activePlayer != id else { break }
+            switch state.gameState {
+            case .paused(playerId: let previous):
+                if previous != id {
+                    print("active player changed between pause")
+                }
+                state.gameState = .active(playerId: id)
+            case .active(playerId: let activePlayer):
+                if activePlayer == id { return .none }
+            default:
+                break
+            }
+
             let date = Date()
-            if state.gameState == .paused { state.gameState = .active }
             switch id {
             case 1:
                 state.playerOne.updateClockEndFrom(now: date)
@@ -80,11 +89,11 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
             default:
                 fatalError()
             }
-            state.activePlayer = id
+            state.gameState = .active(playerId: id)
+            return .none
 
         case .paused:
             // give control to other player
-            state.gameState = .active
             let date = Date()
             switch id {
             case 1:
@@ -94,12 +103,12 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
             default:
                 fatalError()
             }
-            state.activePlayer = id
+            state.gameState = .active(playerId: id)
+            return .none
 
         case .outOfTime:
-            break
+            return Effect.none
         }
-        return Effect.none
 
     case .settingsButtonTapped:
         return Effect.none
@@ -108,11 +117,13 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
         return Effect.none
 
     case .pauseGame:
-        state.gameState = .paused
+        if case .active(let activePlayerId) = state.gameState {
+            state.gameState = .paused(playerId: activePlayerId)
+        }
+
         return Effect.none
 
     case .resetGame:
-        state.activePlayer = nil
         state.playerOne.resetTimeRemaining()
         state.playerTwo.resetTimeRemaining()
         state.gameState = .ready
@@ -130,7 +141,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
         }
 
         if state.playerTwo.timeRemaining <= 0 || state.playerOne.timeRemaining <= 0 {
-            state.gameState = .outOfTime
+            state.gameState = .outOfTime(playerId: id)
         }
         return .none
     }
