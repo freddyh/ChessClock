@@ -134,43 +134,6 @@ struct ContentViewComposable: View {
     }
 }
 
-enum GameState {
-    case ready
-    case active(playerId: Int)
-    case paused(playerId: Int)
-    case outOfTime(playerId: Int)
-}
-
-extension GameState: Equatable {}
-
-struct Player {
-    var id: Int
-    private var clockEnd: Date?
-    var initialTime: TimeInterval
-    var timeRemaining: TimeInterval
-
-    init(id: Int, initialTime: TimeInterval, timeRemaining: TimeInterval? = nil) {
-        self.id = id
-        self.initialTime = initialTime
-        self.timeRemaining = timeRemaining ?? initialTime
-    }
-
-    mutating func updateClockEndFrom(now: Date) {
-        clockEnd = now.addingTimeInterval(timeRemaining)
-    }
-
-    mutating func resetTimeRemaining() {
-        timeRemaining = initialTime
-    }
-
-    mutating func updateTimeRemaining(from now: Date) {
-        if clockEnd == nil {
-            clockEnd = now.addingTimeInterval(initialTime)
-        }
-        timeRemaining = clockEnd!.timeIntervalSince1970 - now.timeIntervalSince1970
-    }
-}
-
 struct PlayerButtonView: View {
     var fill: Color
     var enabled: Bool
@@ -226,6 +189,43 @@ struct ContentView_Previews: PreviewProvider {
                 environment: .init(mainQueue: .main)
             )
         )
+    }
+}
+
+enum GameState {
+    case ready
+    case active(playerId: Int)
+    case paused(playerId: Int)
+    case outOfTime(playerId: Int)
+}
+
+extension GameState: Equatable {}
+
+struct Player {
+    var id: Int
+    private var clockEnd: Date?
+    var initialTime: TimeInterval
+    var timeRemaining: TimeInterval
+
+    init(id: Int, initialTime: TimeInterval, timeRemaining: TimeInterval? = nil) {
+        self.id = id
+        self.initialTime = initialTime
+        self.timeRemaining = timeRemaining ?? initialTime
+    }
+
+    mutating func updateClockEndFrom(now: Date) {
+        clockEnd = now.addingTimeInterval(timeRemaining)
+    }
+
+    mutating func resetTimeRemaining() {
+        timeRemaining = initialTime
+    }
+
+    mutating func updateTimeRemaining(from now: Date) {
+        if clockEnd == nil {
+            clockEnd = now.addingTimeInterval(initialTime)
+        }
+        timeRemaining = clockEnd!.timeIntervalSince1970 - now.timeIntervalSince1970
     }
 }
 
