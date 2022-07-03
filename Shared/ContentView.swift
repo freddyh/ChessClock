@@ -187,7 +187,9 @@ struct PlayerButtonView: View {
                                 .remainingTimeFormatter
                                 .string(
                                     for: DateComponents(
-                                        second: Int(timeRemaining)
+                                        minute: Int(timeRemaining / 60) % 60,
+                                        second: Int(timeRemaining) % 60
+//                                        nanosecond: Int(timeRemaining )
                                     )
                                 ) ?? "\(timeRemaining)")
                         .font(.system(size: 40))
@@ -216,8 +218,8 @@ struct ContentView_Previews: PreviewProvider {
         ContentViewComposable(
             store: .init(
                 initialState: .init(
-                    playerOne: Player(id: 1, initialTime: 10),
-                    playerTwo: Player(id: 1, initialTime: 10),
+                    playerOne: Player(id: 1, initialTime: 65),
+                    playerTwo: Player(id: 1, initialTime: 600),
                     gameState: .ready
                 ),
                 reducer: appReducer,
