@@ -2,6 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct ContentViewComposable: View {
+    @Environment(\.scenePhase) var scenePhase
     let store: Store<AppState, AppAction>
     @State var isSettingsPresented: Bool = false
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -93,6 +94,16 @@ struct ContentViewComposable: View {
                             print(isEditing)
                         }
                     }
+                }
+            }
+            .onChange(of: scenePhase) { newValue in
+                switch newValue {
+                case .background, .inactive:
+                    viewStore.send(.pauseGame)
+                case .active:
+                    break
+                @unknown default:
+                    break
                 }
             }
         }
