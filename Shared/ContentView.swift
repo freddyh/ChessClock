@@ -150,9 +150,9 @@ struct PlayerButtonView: View {
                                 .remainingTimeFormatter
                                 .string(
                                     for: DateComponents(
+                                        hour: Int(timeRemaining / 3600),
                                         minute: Int(timeRemaining / 60) % 60,
                                         second: Int(timeRemaining) % 60
-//                                        nanosecond: Int(timeRemaining )
                                     )
                                 ) ?? "\(timeRemaining)")
                         .font(.system(size: 40))
@@ -171,7 +171,7 @@ extension DateComponentsFormatter {
     static var remainingTimeFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .positional
-        formatter.allowedUnits = [.minute, .second]
+        formatter.allowedUnits = [.hour, .minute, .second]
         return formatter
     }()
 }
@@ -182,7 +182,7 @@ struct ContentView_Previews: PreviewProvider {
             store: .init(
                 initialState: .init(
                     playerOne: Player(id: 1, initialTime: 65),
-                    playerTwo: Player(id: 1, initialTime: 600),
+                    playerTwo: Player(id: 1, initialTime: 60 * 60),
                     gameState: .ready
                 ),
                 reducer: appReducer,
