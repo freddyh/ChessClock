@@ -67,35 +67,9 @@ struct ContentViewComposable: View {
 
                 viewStore.send(.playerTimeUpdated(activePlayer))
             }
-//            .fullScreenCover(isPresented: $isSettingsPresented) {
-//                VStack {
-//                    HStack {
-//                        Text("1")
-//                        Stepper {
-//                            Text("minutes")
-//                        } onIncrement: {
-//                        } onDecrement: {
-////                            viewStore.isSettingsPresented = false
-//
-//                        } onEditingChanged: { isEditing in
-//                            print(isEditing)
-//                        }
-//
-//                    }
-//
-//                    HStack {
-//                        Text("1")
-//
-//                        Stepper {
-//                            Text("seconds")
-//                        } onIncrement: {
-//                        } onDecrement: {
-//                        } onEditingChanged: { isEditing in
-//                            print(isEditing)
-//                        }
-//                    }
-//                }
-//            }
+            .fullScreenCover(isPresented: viewStore.binding(get: \.showSettings, send: ClockFeature.Action.settingsButtonTapped)) {
+                EditTimeControlView(hours: 0, minutes: 5)
+            }
             .onChange(of: scenePhase) { newValue in
                 switch newValue {
                 case .background, .inactive:

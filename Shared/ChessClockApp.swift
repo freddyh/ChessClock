@@ -30,7 +30,8 @@ struct ClockFeature: ReducerProtocol {
     struct State: Equatable {
         var playerOne: Player
         var playerTwo: Player
-        var gameState: GameState
+        var gameState: GameState = .ready
+        var showSettings: Bool = false
     }
 
     enum Action: Equatable {
@@ -105,6 +106,7 @@ struct ClockFeature: ReducerProtocol {
             }
 
         case .settingsButtonTapped:
+            state.showSettings = true
             return Effect.none
 
         case .gameStateButtonTapped:

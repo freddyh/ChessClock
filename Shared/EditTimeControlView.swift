@@ -21,12 +21,20 @@ struct TimeControl {
 
 struct EditTimeControlView: View {
     @State var hours: Int = 0
+    @State var minutes: Int = 0
 
     var body: some View {
-        Picker("Hours", selection: $hours) {
-            ForEach(0..<100) { Text("\($0)")}
+        HStack {
+            Picker("Hours", selection: $hours) {
+                ForEach(0..<100) { Text("\($0)").tag($0) }
+            }
+            .pickerStyle(.wheel)
+
+            Picker("Minutes", selection: $minutes) {
+                ForEach(0..<100) { Text("\($0)").tag($0) }
+            }
+            .pickerStyle(.wheel)
         }
-        .pickerStyle(.wheel)
     }
 }
 
