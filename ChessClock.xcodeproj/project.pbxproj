@@ -14,6 +14,9 @@
 		4684577428559F2700721382 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4684576228559F2700721382 /* Assets.xcassets */; };
 		4684577528559F2700721382 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4684576228559F2700721382 /* Assets.xcassets */; };
 		46A72E81286D771900393C71 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 46A72E80286D771900393C71 /* ComposableArchitecture */; };
+		46D3872F291234AD00F7D9CB /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 46D3872E291234AD00F7D9CB /* ComposableArchitecture */; };
+		46D38731291235B000F7D9CB /* EditTimeControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D38730291235B000F7D9CB /* EditTimeControlView.swift */; };
+		46D38732291235B000F7D9CB /* EditTimeControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D38730291235B000F7D9CB /* EditTimeControlView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +26,7 @@
 		4684576728559F2700721382 /* ChessClock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChessClock.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4684576D28559F2700721382 /* ChessClock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChessClock.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4684576F28559F2700721382 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		46D38730291235B000F7D9CB /* EditTimeControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTimeControlView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46D3872F291234AD00F7D9CB /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +55,7 @@
 				4684575F28559F2500721382 /* Shared */,
 				4684576E28559F2700721382 /* macOS */,
 				4684576828559F2700721382 /* Products */,
+				46D3872D291234AD00F7D9CB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +64,7 @@
 			children = (
 				4684576028559F2600721382 /* ChessClockApp.swift */,
 				4684576128559F2600721382 /* ContentView.swift */,
+				46D38730291235B000F7D9CB /* EditTimeControlView.swift */,
 				4684576228559F2700721382 /* Assets.xcassets */,
 			);
 			path = Shared;
@@ -78,6 +85,13 @@
 				4684576F28559F2700721382 /* macOS.entitlements */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		46D3872D291234AD00F7D9CB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -116,6 +130,9 @@
 			dependencies = (
 			);
 			name = "ChessClock (macOS)";
+			packageProductDependencies = (
+				46D3872E291234AD00F7D9CB /* ComposableArchitecture */,
+			);
 			productName = "ChessClock (macOS)";
 			productReference = 4684576D28559F2700721382 /* ChessClock.app */;
 			productType = "com.apple.product-type.application";
@@ -184,6 +201,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46D38731291235B000F7D9CB /* EditTimeControlView.swift in Sources */,
 				4684577228559F2700721382 /* ContentView.swift in Sources */,
 				4684577028559F2700721382 /* ChessClockApp.swift in Sources */,
 			);
@@ -193,6 +211,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46D38732291235B000F7D9CB /* EditTimeControlView.swift in Sources */,
 				4684577328559F2700721382 /* ContentView.swift in Sources */,
 				4684577128559F2700721382 /* ChessClockApp.swift in Sources */,
 			);
@@ -478,6 +497,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		46A72E80286D771900393C71 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		46D3872E291234AD00F7D9CB /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;

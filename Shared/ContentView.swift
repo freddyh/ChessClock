@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ContentViewComposable: View {
     @Environment(\.scenePhase) var scenePhase
-    let store: Store<AppState, AppAction>
+    let store: Store<ClockFeature.State, ClockFeature.Action>
     @State var isSettingsPresented: Bool = false
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
@@ -67,35 +67,35 @@ struct ContentViewComposable: View {
 
                 viewStore.send(.playerTimeUpdated(activePlayer))
             }
-            .fullScreenCover(isPresented: $isSettingsPresented) {
-                VStack {
-                    HStack {
-                        Text("1")
-                        Stepper {
-                            Text("minutes")
-                        } onIncrement: {
-                        } onDecrement: {
-//                            viewStore.isSettingsPresented = false
-
-                        } onEditingChanged: { isEditing in
-                            print(isEditing)
-                        }
-
-                    }
-
-                    HStack {
-                        Text("1")
-
-                        Stepper {
-                            Text("seconds")
-                        } onIncrement: {
-                        } onDecrement: {
-                        } onEditingChanged: { isEditing in
-                            print(isEditing)
-                        }
-                    }
-                }
-            }
+//            .fullScreenCover(isPresented: $isSettingsPresented) {
+//                VStack {
+//                    HStack {
+//                        Text("1")
+//                        Stepper {
+//                            Text("minutes")
+//                        } onIncrement: {
+//                        } onDecrement: {
+////                            viewStore.isSettingsPresented = false
+//
+//                        } onEditingChanged: { isEditing in
+//                            print(isEditing)
+//                        }
+//
+//                    }
+//
+//                    HStack {
+//                        Text("1")
+//
+//                        Stepper {
+//                            Text("seconds")
+//                        } onIncrement: {
+//                        } onDecrement: {
+//                        } onEditingChanged: { isEditing in
+//                            print(isEditing)
+//                        }
+//                    }
+//                }
+//            }
             .onChange(of: scenePhase) { newValue in
                 switch newValue {
                 case .background, .inactive:
@@ -145,19 +145,20 @@ struct PlayerButtonView: View {
             Rectangle().fill(fill)
                 .overlay(
                     VStack {
-                        Text(
-                            DateComponentsFormatter
-                                .remainingTimeFormatter
-                                .string(
-                                    for: DateComponents(
-                                        hour: Int(timeRemaining / 3600),
-                                        minute: Int(timeRemaining / 60) % 60,
-                                        second: Int(timeRemaining) % 60
-                                    )
-                                ) ?? "\(timeRemaining)")
-                        .font(.system(size: 40))
-                        .fontWeight(.semibold)
-
+                        if timeRemaining != 0 {
+                            Text(
+                                DateComponentsFormatter
+                                    .remainingTimeFormatter
+                                    .string(
+                                        for: DateComponents(
+                                            hour: Int(timeRemaining / 3600),
+                                            minute: Int(timeRemaining / 60) % 60,
+                                            second: Int(timeRemaining) % 60
+                                        )
+                                    ) ?? "\(timeRemaining)")
+                            .font(.system(size: 40))
+                            .fontWeight(.semibold)
+                        }
                         if timeRemaining <= 0 { Text("Out of Time") }
                     }
                 )
@@ -174,22 +175,6 @@ extension DateComponentsFormatter {
         formatter.allowedUnits = [.hour, .minute, .second]
         return formatter
     }()
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentViewComposable(
-            store: .init(
-                initialState: .init(
-                    playerOne: Player(id: 1, initialTime: 65),
-                    playerTwo: Player(id: 1, initialTime: 60 * 60),
-                    gameState: .ready
-                ),
-                reducer: appReducer,
-                environment: .init(mainQueue: .main)
-            )
-        )
-    }
 }
 
 enum GameState {
@@ -230,3 +215,20 @@ struct Player {
 }
 
 extension Player: Equatable {}
+
+#if DEBUG
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentViewComposable(
+            store: Store(
+                initialState: ClockFeature.State(
+                    playerOne: Player(id: 1, initialTime: 10),
+                    playerTwo: Player(id: 2, initialTime: 10),
+                    gameState: .ready
+                ),
+                reducer: ClockFeature()
+            )
+        )
+    }
+}
+#endif
