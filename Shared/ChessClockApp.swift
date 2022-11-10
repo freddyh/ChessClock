@@ -45,7 +45,7 @@ struct ClockFeature: ReducerProtocol {
         case playerTimeUpdated(Int)
     }
 
-    @Dependency(\.date) var d
+    @Dependency(\.date) var date
 
     func reduce(into state: inout State, action: Action) -> ComposableArchitecture.EffectTask<Action> {
         switch action {
@@ -53,12 +53,12 @@ struct ClockFeature: ReducerProtocol {
             switch state.gameState {
             case .ready:
                 // give control to other player
-                let date = d.now
+                let now = date.now
                 switch id {
                 case 1:
-                    state.playerOne.updateClockEndFrom(now: date)
+                    state.playerOne.updateClockEndFrom(now: now)
                 case 2:
-                    state.playerTwo.updateClockEndFrom(now: date)
+                    state.playerTwo.updateClockEndFrom(now: now)
                 default:
                     fatalError()
                 }
