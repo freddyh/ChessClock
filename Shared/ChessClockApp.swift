@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Dependencies
 import SwiftUI
 
 @main
@@ -37,11 +38,14 @@ struct ClockFeature: ReducerProtocol {
     enum Action: Equatable {
         case playerClockButtonTapped(Int)
         case settingsButtonTapped
+        case dimissSettingsButtonTapped
         case gameStateButtonTapped
         case pauseGame
         case resetGame
         case playerTimeUpdated(Int)
     }
+
+    @Dependency(\.date) var d
 
     func reduce(into state: inout State, action: Action) -> ComposableArchitecture.EffectTask<Action> {
         switch action {
@@ -49,7 +53,7 @@ struct ClockFeature: ReducerProtocol {
             switch state.gameState {
             case .ready:
                 // give control to other player
-                let date = Date()
+                let date = d.now
                 switch id {
                 case 1:
                     state.playerOne.updateClockEndFrom(now: date)
@@ -106,7 +110,11 @@ struct ClockFeature: ReducerProtocol {
             }
 
         case .settingsButtonTapped:
-            state.showSettings = true
+            state.showSettings.toggle()
+            return Effect.none
+
+        case .dimissSettingsButtonTapped:
+            state.showSettings = false
             return Effect.none
 
         case .gameStateButtonTapped:

@@ -67,8 +67,22 @@ struct ContentViewComposable: View {
 
                 viewStore.send(.playerTimeUpdated(activePlayer))
             }
-            .fullScreenCover(isPresented: viewStore.binding(get: \.showSettings, send: ClockFeature.Action.settingsButtonTapped)) {
-                EditTimeControlView(hours: 0, minutes: 5)
+            .fullScreenCover(isPresented: viewStore.binding(get: \.showSettings, send: ClockFeature.Action.dimissSettingsButtonTapped)) {
+                NavigationView {
+                    EditTimeControlView(hours: 0, minutes: 5)
+                        .toolbar {
+                            ToolbarItem {
+                                Button("Cancel") {
+                                    viewStore.send(.dimissSettingsButtonTapped)
+                                }
+                            }
+                            ToolbarItem {
+                                Button("Save") {
+                                    viewStore.send(.dimissSettingsButtonTapped)
+                                }
+                            }
+                        }
+                }
             }
             .onChange(of: scenePhase) { newValue in
                 switch newValue {
@@ -197,7 +211,7 @@ struct ContentView_Previews: PreviewProvider {
             store: Store(
                 initialState: ClockFeature.State(
                     playerOne: Player(id: 1, initialTime: 10),
-                    playerTwo: Player(id: 2, initialTime: 10),
+                    playerTwo: Player(id: 2, initialTime: 10 * 60),
                     gameState: .ready
                 ),
                 reducer: ClockFeature()
