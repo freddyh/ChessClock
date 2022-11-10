@@ -16,7 +16,7 @@ struct ContentViewComposable: View {
                         enabled: isPlayerEnabled(gameState: viewStore.gameState, player: 1),
                         timeRemaining: viewStore.playerOne.timeRemaining
                     ) {
-                        viewStore.send(.playerClockButtonTapped(2))
+                        viewStore.send(.playerClockButtonTapped(2), animation: .easeInOut)
                     }
                     .rotationEffect(.degrees(180))
 
@@ -27,7 +27,7 @@ struct ContentViewComposable: View {
                         enabled: isPlayerEnabled(gameState: viewStore.gameState, player: 2),
                         timeRemaining: viewStore.playerTwo.timeRemaining
                     ) {
-                        viewStore.send(.playerClockButtonTapped(1))
+                        viewStore.send(.playerClockButtonTapped(1), animation: .easeInOut)
                     }
 
                 }
@@ -36,8 +36,10 @@ struct ContentViewComposable: View {
                     Spacer()
 
                     if viewStore.gameState != .ready {
-                        Button(action: { viewStore.send(.resetGame) }) {
+                        Button(action: { viewStore.send(.resetGame, animation: .easeInOut) }) {
                             Image(systemName: "gobackward")
+                                .resizable()
+                                .frame(width: 50, height: 50)
                         }
                         Spacer()
                     }
@@ -45,6 +47,8 @@ struct ContentViewComposable: View {
                     if case .active(_) = viewStore.gameState {
                         Button(action: { viewStore.send(.pauseGame) }) {
                             Image(systemName: "pause")
+                                .resizable()
+                                .frame(width: 50, height: 50)
                         }
 
                         Spacer()
@@ -52,12 +56,14 @@ struct ContentViewComposable: View {
                     else {
                         Button(action: { viewStore.send(.settingsButtonTapped) }) {
                             Image(systemName: "gear")
+                                .resizable()
+                                .frame(width: 50, height: 50)
                         }
 
                         Spacer()
                     }
                 }
-                .zIndex(100)
+//                .zIndex(100)
             }
             .edgesIgnoringSafeArea(.all)
             .onReceive(timer) { input in
@@ -71,12 +77,12 @@ struct ContentViewComposable: View {
                 NavigationView {
                     EditTimeControlView(hours: 0, minutes: 5)
                         .toolbar {
-                            ToolbarItem {
+                            ToolbarItem(placement: .cancellationAction) {
                                 Button("Cancel") {
                                     viewStore.send(.dimissSettingsButtonTapped)
                                 }
                             }
-                            ToolbarItem {
+                            ToolbarItem(placement: .confirmationAction) {
                                 Button("Save") {
                                     viewStore.send(.dimissSettingsButtonTapped)
                                 }

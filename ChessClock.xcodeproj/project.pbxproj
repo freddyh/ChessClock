@@ -8,15 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		4684577028559F2700721382 /* ChessClockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4684576028559F2600721382 /* ChessClockApp.swift */; };
-		4684577128559F2700721382 /* ChessClockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4684576028559F2600721382 /* ChessClockApp.swift */; };
 		4684577228559F2700721382 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4684576128559F2600721382 /* ContentView.swift */; };
-		4684577328559F2700721382 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4684576128559F2600721382 /* ContentView.swift */; };
 		4684577428559F2700721382 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4684576228559F2700721382 /* Assets.xcassets */; };
-		4684577528559F2700721382 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4684576228559F2700721382 /* Assets.xcassets */; };
 		46A72E81286D771900393C71 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 46A72E80286D771900393C71 /* ComposableArchitecture */; };
-		46D3872F291234AD00F7D9CB /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 46D3872E291234AD00F7D9CB /* ComposableArchitecture */; };
 		46D38731291235B000F7D9CB /* EditTimeControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D38730291235B000F7D9CB /* EditTimeControlView.swift */; };
-		46D38732291235B000F7D9CB /* EditTimeControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D38730291235B000F7D9CB /* EditTimeControlView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,8 +19,6 @@
 		4684576128559F2600721382 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4684576228559F2700721382 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4684576728559F2700721382 /* ChessClock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChessClock.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4684576D28559F2700721382 /* ChessClock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChessClock.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4684576F28559F2700721382 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		46D38730291235B000F7D9CB /* EditTimeControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTimeControlView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -38,14 +31,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4684576A28559F2700721382 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				46D3872F291234AD00F7D9CB /* ComposableArchitecture in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -53,7 +38,6 @@
 			isa = PBXGroup;
 			children = (
 				4684575F28559F2500721382 /* Shared */,
-				4684576E28559F2700721382 /* macOS */,
 				4684576828559F2700721382 /* Products */,
 				46D3872D291234AD00F7D9CB /* Frameworks */,
 			);
@@ -74,17 +58,8 @@
 			isa = PBXGroup;
 			children = (
 				4684576728559F2700721382 /* ChessClock.app */,
-				4684576D28559F2700721382 /* ChessClock.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		4684576E28559F2700721382 /* macOS */ = {
-			isa = PBXGroup;
-			children = (
-				4684576F28559F2700721382 /* macOS.entitlements */,
-			);
-			path = macOS;
 			sourceTree = "<group>";
 		};
 		46D3872D291234AD00F7D9CB /* Frameworks */ = {
@@ -117,26 +92,6 @@
 			productReference = 4684576728559F2700721382 /* ChessClock.app */;
 			productType = "com.apple.product-type.application";
 		};
-		4684576C28559F2700721382 /* ChessClock (macOS) */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4684577B28559F2700721382 /* Build configuration list for PBXNativeTarget "ChessClock (macOS)" */;
-			buildPhases = (
-				4684576928559F2700721382 /* Sources */,
-				4684576A28559F2700721382 /* Frameworks */,
-				4684576B28559F2700721382 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "ChessClock (macOS)";
-			packageProductDependencies = (
-				46D3872E291234AD00F7D9CB /* ComposableArchitecture */,
-			);
-			productName = "ChessClock (macOS)";
-			productReference = 4684576D28559F2700721382 /* ChessClock.app */;
-			productType = "com.apple.product-type.application";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -148,9 +103,6 @@
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
 					4684576628559F2700721382 = {
-						CreatedOnToolsVersion = 13.2.1;
-					};
-					4684576C28559F2700721382 = {
 						CreatedOnToolsVersion = 13.2.1;
 					};
 				};
@@ -172,7 +124,6 @@
 			projectRoot = "";
 			targets = (
 				4684576628559F2700721382 /* ChessClock (iOS) */,
-				4684576C28559F2700721382 /* ChessClock (macOS) */,
 			);
 		};
 /* End PBXProject section */
@@ -186,14 +137,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4684576B28559F2700721382 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4684577528559F2700721382 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -204,16 +147,6 @@
 				46D38731291235B000F7D9CB /* EditTimeControlView.swift in Sources */,
 				4684577228559F2700721382 /* ContentView.swift in Sources */,
 				4684577028559F2700721382 /* ChessClockApp.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4684576928559F2700721382 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				46D38732291235B000F7D9CB /* EditTimeControlView.swift in Sources */,
-				4684577328559F2700721382 /* ContentView.swift in Sources */,
-				4684577128559F2700721382 /* ChessClockApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,66 +325,6 @@
 			};
 			name = Release;
 		};
-		4684577C28559F2700721382 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 9298243JKU;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 12.1;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freddyhernandezjr.ChessClock;
-				PRODUCT_NAME = ChessClock;
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		4684577D28559F2700721382 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 9298243JKU;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 12.1;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freddyhernandezjr.ChessClock;
-				PRODUCT_NAME = ChessClock;
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -473,15 +346,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4684577B28559F2700721382 /* Build configuration list for PBXNativeTarget "ChessClock (macOS)" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4684577C28559F2700721382 /* Debug */,
-				4684577D28559F2700721382 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -497,11 +361,6 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		46A72E80286D771900393C71 /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
-		46D3872E291234AD00F7D9CB /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 46A72E7F286D771900393C71 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
