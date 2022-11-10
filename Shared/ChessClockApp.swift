@@ -79,7 +79,7 @@ struct ClockFeature: ReducerProtocol {
                     break
                 }
 
-                let date = Date()
+                let date = date.now
                 switch id {
                 case 1:
                     state.playerOne.updateClockEndFrom(now: date)
@@ -93,7 +93,7 @@ struct ClockFeature: ReducerProtocol {
 
             case .paused:
                 // give control to other player
-                let date = Date()
+                let date = date.now
                 switch id {
                 case 1:
                     state.playerOne.updateClockEndFrom(now: date)
@@ -134,7 +134,7 @@ struct ClockFeature: ReducerProtocol {
             return Effect.none
 
         case .playerTimeUpdated(let id):
-            let now = Date()
+            let now = date.now
             switch id {
             case 1:
                 state.playerOne.updateTimeRemaining(from: now)
