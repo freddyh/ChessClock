@@ -63,7 +63,6 @@ struct ContentViewComposable: View {
                         Spacer()
                     }
                 }
-//                .zIndex(100)
             }
             .edgesIgnoringSafeArea(.all)
             .onReceive(timer) { input in
