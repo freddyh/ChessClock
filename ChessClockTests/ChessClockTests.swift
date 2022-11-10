@@ -23,5 +23,7 @@ final class ChessClockTests: XCTestCase {
         )
 
         XCTAssertEqual(store.state.gameState, .ready)
+        XCTAssertEqual(store.state.playerOne.timeRemaining, 5)
+        XCTAssertEqual(store.state.playerTwo.timeRemaining, 5)
     }
 }
